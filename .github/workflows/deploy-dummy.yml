@@ -18,6 +18,10 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          # Menghentikan skrip pada perintah pertama yang gagal (menyisipkan "set -e").
+          # Tanpa opsi ini, kegagalan docker compose build tidak menghentikan
+          # perintah berikutnya dan job tetap dilaporkan sukses.
+          script_stop: true
           script: |
             # Direktori proyek di VPS
             cd /root/dummy-project
@@ -27,11 +31,13 @@ jobs:
             git fetch origin --tags --force
             git checkout -f ${{ github.ref_name }}
 
-            # Tandai versi rilis agar terbaca oleh kontainer
+            # Jalankan proses docker compose build & deploy sekuensial.
+            # Jika build gagal, eksekusi berhenti di sini.
+            docker compose build
+
+            # Tandai versi rilis hanya setelah build dipastikan berhasil
             echo "APP_VERSION=${{ github.ref_name }}" > .env
 
-            # Jalankan proses docker compose build & deploy sekuensial
-            docker compose build
             docker compose up -d --force-recreate
 
             # Hapus docker image lama yang menggantung untuk hemat disk

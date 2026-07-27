@@ -13,16 +13,17 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Deploy to VPS via SSH
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          # Menghentikan skrip pada perintah pertama yang gagal (menyisipkan "set -e").
-          # Tanpa opsi ini, kegagalan docker compose build tidak menghentikan
-          # perintah berikutnya dan job tetap dilaporkan sukses.
-          script_stop: true
           script: |
+            # Menghentikan skrip pada perintah pertama yang gagal.
+            # Tanpa baris ini, kegagalan docker compose build tidak menghentikan
+            # perintah berikutnya dan job tetap dilaporkan sukses oleh GitHub Actions.
+            set -e
+
             # Direktori proyek di VPS
             cd /root/dummy-project
 

@@ -1,0 +1,38 @@
+name: Build and Deploy Dummy App on VPS
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            # Direktori proyek di VPS
+            cd /root/dummy-project
+
+            # Tarik seluruh pembaruan kode dan tag dari repositori,
+            # lalu pindah ke tag versi yang memicu pipeline ini.
+            git fetch origin --tags --force
+            git checkout -f ${{ github.ref_name }}
+
+            # Tandai versi rilis agar terbaca oleh kontainer
+            echo "APP_VERSION=${{ github.ref_name }}" > .env
+
+            # Jalankan proses docker compose build & deploy sekuensial
+            docker compose build
+            docker compose up -d --force-recreate
+
+            # Hapus docker image lama yang menggantung untuk hemat disk
+            docker image prune -af

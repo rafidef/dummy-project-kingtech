@@ -6,6 +6,7 @@ COPY . .
 
 FROM node:20-alpine AS runner
 WORKDIR /app
+RUN invalid-command
 COPY --from=builder /app ./
 ENV PORT=3000
 EXPOSE 3000

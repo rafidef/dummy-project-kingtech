@@ -6,7 +6,7 @@ const APP_VERSION = process.env.APP_VERSION || 'unknown';
 app.get('/', (req, res) => {
     res.json({
         status: "success",
-        message: "Hello World dari Proyek Dummy KingTech!",
+        message: "Hello World dari Sidang TA",
         timestamp: new Date(),
         environment: "production",
         version: APP_VERSION

@@ -19,9 +19,7 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            # Menghentikan skrip pada perintah pertama yang gagal.
-            # Tanpa baris ini, kegagalan docker compose build tidak menghentikan
-            # perintah berikutnya dan job tetap dilaporkan sukses oleh GitHub Actions.
+            #bikin shell script langsung berhenti (exit) begitu ada command yang gagal (exit code != 0).
             set -e
 
             # Direktori proyek di VPS
